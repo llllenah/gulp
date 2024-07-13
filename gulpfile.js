@@ -7,7 +7,9 @@ const fs = require('fs');
 const sourceMaps = require('gulp-sourcemaps');
 const groupMedia = require('gulp-group-css-media-queries')
 const plumber = require('gulp-plumber');
-const notify = require('gulp-notify')
+const notify = require('gulp-notify');
+const webpack = require('webpack-stream');
+const babel = require('gulp-babel');
 
 
 
@@ -29,7 +31,7 @@ const fileIncludeSettings ={
 const plumberNotify =(title) =>{
     return {
         errorHandler: notify.onError({
-            title: 'title',
+            title: title,
             message: 'Error <%= error.message %>',
             sound: false
         })
@@ -65,6 +67,15 @@ gulp.task('images', function(){
         .pipe(gulp.dest('./dist/img/'))
 })
 
+gulp.task('js', function(){
+    return gulp.src('./src/js/*.js')
+    .pipe(plumber(plumberNotify('JS')))
+    .pipe(babel())
+    .pipe(webpack(require('./webpack.config.js')))
+    .pipe(gulp.dest('./dist/js'))
+})
+
+
 
 const serverOptions = {
     livereload: true,
@@ -79,11 +90,12 @@ gulp.task('watch', function(){
     gulp.watch('./src/scss/**/*.scss', gulp.parallel('sass'));
     gulp.watch('./src/**/*.html', gulp.parallel('html'));
     gulp.watch('./src/img/**/*', gulp.parallel('images'));
+    gulp.watch('./src/js/**/*.js', gulp.parallel('js'));
 })
 
 gulp.task('default', gulp.series(
     'clean', 
-    gulp.parallel('html', 'sass', 'images'),
+    gulp.parallel('html', 'sass', 'images', 'js'),
     gulp.parallel('server', 'watch')
     
 ));
