@@ -1,6 +1,7 @@
 const gulp = require('gulp');
 const fileInclude = require('gulp-file-include');
 const sass = require('gulp-sass')(require('sass'));
+var sassGlob = require('gulp-sass-glob')
 const server = require('gulp-server-livereload');
 const clean = require('gulp-clean');
 const fs = require('fs');
@@ -10,6 +11,8 @@ const plumber = require('gulp-plumber');
 const notify = require('gulp-notify');
 const webpack = require('webpack-stream');
 const babel = require('gulp-babel');
+const imagemin = require('gulp-imagemin');
+const changed = require('gulp-changed')
 
 
 
@@ -42,7 +45,8 @@ const plumberNotify =(title) =>{
 
 gulp.task('html', function () {
    return gulp
-    .src('./src/*.html')
+    .src(['./src/html/**/*.html', '!./src/html/blocks/*.html'])
+    .pipe(changed('./dist/'))
     .pipe(plumber(plumberNotify('HTML')))
     .pipe(fileInclude(fileIncludeSettings))
     .pipe(gulp.dest('./dist/'))
@@ -53,6 +57,7 @@ gulp.task('html', function () {
 gulp.task('sass',function () {
     return gulp
         .src('./src/scss/*.scss')
+        .pipe(changed('./dist/css/'))
         .pipe(plumber(plumberNotify('Styles')))
         .pipe(sourceMaps.init())
         .pipe(sass())
@@ -63,16 +68,20 @@ gulp.task('sass',function () {
 
 
 gulp.task('images', function(){
-    return gulp.src('./src/img/**/*')
+    return gulp
+        .src('./src/img/**/*')
+        .pipe(changed('./dist/img/'))
+        .pipe(imagemin({verbose: true}))
         .pipe(gulp.dest('./dist/img/'))
 })
 
 gulp.task('js', function(){
     return gulp.src('./src/js/*.js')
+    .pipe(changed('./dist/js/'))
     .pipe(plumber(plumberNotify('JS')))
     .pipe(babel())
     .pipe(webpack(require('./webpack.config.js')))
-    .pipe(gulp.dest('./dist/js'))
+    .pipe(gulp.dest('./dist/js/'))
 })
 
 
