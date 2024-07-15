@@ -1,7 +1,7 @@
 const gulp = require('gulp');
 const fileInclude = require('gulp-file-include');
 const sass = require('gulp-sass')(require('sass'));
-var sassGlob = require('gulp-sass-glob')
+const sassGlob = require('gulp-sass-glob')
 const server = require('gulp-server-livereload');
 const clean = require('gulp-clean');
 const fs = require('fs');
@@ -60,6 +60,7 @@ gulp.task('sass',function () {
         .pipe(changed('./dist/css/'))
         .pipe(plumber(plumberNotify('Styles')))
         .pipe(sourceMaps.init())
+        .pipe(sassGlob())
         .pipe(sass())
         .pipe(groupMedia())
         .pipe(sourceMaps.write())
