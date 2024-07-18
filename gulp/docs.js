@@ -1,24 +1,35 @@
 const gulp = require('gulp');
+
+//Html
 const fileInclude = require('gulp-file-include');
+const htmlclean = require('gulp-htmlclean')
+
+
+//SASS
 const sass = require('gulp-sass')(require('sass'));
-const sassGlob = require('gulp-sass-glob')
+const sassGlob = require('gulp-sass-glob');
+const autoprefixer = require('gulp-autoprefixer');
+const csso = require('gulp-csso')
+
+
 const server = require('gulp-server-livereload');
 const clean = require('gulp-clean');
 const fs = require('fs');
 const sourceMaps = require('gulp-sourcemaps');
+const groupMedia = require('gulp-group-css-media-queries')
 const plumber = require('gulp-plumber');
 const notify = require('gulp-notify');
 const webpack = require('webpack-stream');
 const babel = require('gulp-babel');
 const imagemin = require('gulp-imagemin');
-const changed = require('gulp-changed')
+const changed = require('gulp-changed');
 
 
 
 
-gulp.task('clean:dev', function(done){
-    if (fs.existsSync('./build/')){
-        return gulp.src('./build/', {read: false})
+gulp.task('clean:docs', function(done){
+    if (fs.existsSync('./docs/')){
+        return gulp.src('./docs/', {read: false})
             .pipe(clean({force: true}));
     }
     done();
@@ -42,44 +53,49 @@ const plumberNotify =(title) =>{
 
 
 
-gulp.task('html:dev', function () {
+gulp.task('html:docs', function () {
    return gulp
     .src(['./src/html/**/*.html', '!./src/html/blocks/*.html'])
-    .pipe(changed('./build/'))
+    .pipe(changed('./docs/'))
     .pipe(plumber(plumberNotify('HTML')))
     .pipe(fileInclude(fileIncludeSettings))
-    .pipe(gulp.dest('./build/'))
+    .pipe(htmlclean())
+    .pipe(gulp.dest('./docs/'))
 });
 
 
 
-gulp.task('sass:dev',function () {
+gulp.task('sass:docs',function () {
     return gulp
         .src('./src/scss/*.scss')
-        .pipe(changed('./build/css/'))
+        .pipe(changed('./docs/css/'))
         .pipe(plumber(plumberNotify('Styles')))
         .pipe(sourceMaps.init())
+        .pipe(autoprefixer())
         .pipe(sassGlob())
+        .pipe(groupMedia())
         .pipe(sass())
+        .pipe(csso())
         .pipe(sourceMaps.write())
-        .pipe(gulp.dest('./build/css/'))
+        .pipe(gulp.dest('./docs/css/'))
 });
 
 
-gulp.task('images:dev', function(){
+gulp.task('images:docs', function(){
     return gulp
         .src('./src/img/**/*')
-        .pipe(changed('./build/img/'))
-        .pipe(gulp.dest('./build/img/'))
+        .pipe(changed('./docs/img/'))
+        .pipe(imagemin({verbose: true}))
+        .pipe(gulp.dest('./docs/img/'))
 })
 
-gulp.task('js:dev', function(){
+gulp.task('js:docs', function(){
     return gulp.src('./src/js/*.js')
-    .pipe(changed('./build/js/'))
+    .pipe(changed('./docs/js/'))
     .pipe(plumber(plumberNotify('JS')))
-    // .pipe(babel())
+    .pipe(babel())
     .pipe(webpack(require('./../webpack.config.js')))
-    .pipe(gulp.dest('./build/js/'))
+    .pipe(gulp.dest('./docs/js/'))
 })
 
 
@@ -89,14 +105,9 @@ const serverOptions = {
     open: true
 }
 
-gulp.task('server:dev', function(){
-    return gulp.src('./build/').pipe(server(serverOptions))
+gulp.task('server:docs', function(){
+    return gulp.src('./docs/').pipe(server(serverOptions))
 })
 
-gulp.task('watch:dev', function(){
-    gulp.watch('./src/scss/**/*.scss', gulp.parallel('sass:dev'));
-    gulp.watch('./src/**/*.html', gulp.parallel('html:dev'));
-    gulp.watch('./src/img/**/*', gulp.parallel('images:dev'));
-    gulp.watch('./src/js/**/*.js', gulp.parallel('js:dev'));
-})
+
 

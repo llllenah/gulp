@@ -6,6 +6,11 @@
   text-align: center;
 }
 
+@media (max-width: 1200px) {
+  .footer {
+    font-size: 26px;
+  }
+}
 .header {
   background-color: rgb(213, 38, 38);
   padding: 100px;
@@ -14,10 +19,6 @@
 }
 
 @media (max-width: 1200px) {
-  .footer {
-    font-size: 26px;
-  }
-
   .header {
     font-size: 32px;
   }
