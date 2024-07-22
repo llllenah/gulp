@@ -12,11 +12,17 @@
     <h1>Index.html</h1>
 
     @@include('blocks/nav.html')
+    
+    <picture>
+        <source srcset="./img/5.webp" type="image/webp">
+        <img src="./img/5.jpg" alt="Photo">
+    </picture>
+
+
+    
     @@include('blocks/header.html')
     @@include('blocks/footer.html')
-    <input type="text" id="date" autocomplete="off">
-
-
+    <input type="text" id="date" autocomplete="off" placeholder="Выбор даты">
     
     <script src="./js/index.bundle.js"></script>
     

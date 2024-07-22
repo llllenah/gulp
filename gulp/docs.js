@@ -21,7 +21,12 @@ const plumber = require('gulp-plumber');
 const notify = require('gulp-notify');
 const webpack = require('webpack-stream');
 const babel = require('gulp-babel');
+
+//Images
 const imagemin = require('gulp-imagemin');
+const webp = require('gulp-webp');
+
+
 const changed = require('gulp-changed');
 
 
@@ -84,6 +89,12 @@ gulp.task('sass:docs',function () {
 gulp.task('images:docs', function(){
     return gulp
         .src('./src/img/**/*')
+        .pipe(changed('./docs/img/'))
+        .pipe(webp())
+        .pipe(gulp.dest('./docs/img/'))
+
+
+        .pipe(gulp.src('./src/img/**/*'))
         .pipe(changed('./docs/img/'))
         .pipe(imagemin({verbose: true}))
         .pipe(gulp.dest('./docs/img/'))
